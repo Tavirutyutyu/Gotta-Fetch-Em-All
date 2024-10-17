@@ -89,7 +89,7 @@ function RenderFight(props) {
   const enemyPoke = props.enemyPoke;
   const usersPoke = props.usersPoke;
   const userPokemons = props.userPokemons;
-  const setAllPokemons = props.setAllPokemons;
+  const setAllPokemons = props.setAllUserPokemons;
   const returnToHome = props.returnToHome;
 
   const pokemons = {
