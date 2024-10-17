@@ -1,21 +1,11 @@
 
-function EnemyPokes(props){
-  const name = props.pokemon.name;
-  const setEnemy = props.setEnemy;
-  const enemy = props.pokemon;
-  const setEnemySelected = props.setEnemySelected;
-  
+function EnemyPokes({pokemon, onEnemySelect}){
 
-  
-  function onClick(){
-    setEnemy(enemy)
-    setEnemySelected(true);
-  }
 
-  return (<div onClick={onClick} id="onePoke" data-testid="enemy-poke">
-    <img src={enemy.sprites.front_default} alt="pokimon" id="selectPokes"></img>
+  return (<div onClick={() => onEnemySelect(pokemon)} id="onePoke" data-testid="enemy-poke">
+    <img src={pokemon.sprites.front_default} alt="pokimon" id="selectPokes"></img>
 
-    <li >{name}</li>
+    <li >{pokemon.name}</li>
 
   </div>
   )

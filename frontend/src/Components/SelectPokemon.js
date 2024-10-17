@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import EnemyPokes from "./EnemyPokes";
 import fetchData from "../Utils";
 
-function SelectPokemon({ setEnemySelected, setEnemy, area }) {
+function SelectPokemon({ onEnemySelect, area }) {
   const [encounterPokemons, setEncounterPokemons] = useState([]);
 
   useEffect(() => {
@@ -20,8 +20,7 @@ function SelectPokemon({ setEnemySelected, setEnemy, area }) {
   function selectRandomEnemy() {
     const maxNum = encounterPokemons.length;
     const randomNumber = Math.floor(Math.random() * maxNum);
-    setEnemy(encounterPokemons[randomNumber]);
-    setEnemySelected(true);
+    onEnemySelect(encounterPokemons[randomNumber]);
   }
 
   return (
@@ -31,8 +30,7 @@ function SelectPokemon({ setEnemySelected, setEnemy, area }) {
         {encounterPokemons.map((pokemon) => (
           <EnemyPokes
             key={pokemon.name}
-            setEnemySelected={setEnemySelected}
-            setEnemy={setEnemy}
+            onEnemySelect={onEnemySelect}
             pokemon={pokemon}
           />
         ))}

@@ -1,4 +1,4 @@
-import RenderFight from '../Components/RenderFight.js';
+import RenderFight from '../Components/FightPage/RenderFight.js';
 import {screen, fireEvent, render, waitFor} from "@testing-library/react";
 
 const mockUserPokeStrong = {
