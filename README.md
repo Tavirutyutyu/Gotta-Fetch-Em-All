@@ -73,6 +73,26 @@ Ensure you have the following installed:
 
 4. **View Your Collection**: Check your Pokémon collection to see the Pokémon you have captured.
 
+
+## Running Tests
+
+This project uses Jest and React Testing Library for unit testing.
+
+1. **Install dependencies** (If you haven't already)
+
+   ```bash
+   npm install
+   ```
+
+
+2. **Run tests**
+   ```bash
+   npm test
+   ```
+
+
+
+
 ## Contributors and contact
 
 For any questions or feedback, please reach out to the project maintainer:
