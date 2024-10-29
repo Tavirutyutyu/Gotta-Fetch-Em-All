@@ -1,26 +1,46 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import SelectOwnPokemon from '../Components/SelectOwnPokemon';
 
-test('renders a list of user pokemons', () => {
+describe('SelectOwnPokemon', () => {
     const mockPokemons = [
-        { name: 'Bulbasaur',
+        {
+            name: 'Bulbasaur',
             sprites: {
-                front_default: 'https://example.com/pikachu.png',
+                front_default: 'https://example.com/bulbasaur.png',
             }
         },
-        { name: 'Charmander',
+        {
+            name: 'Charmander',
             sprites: {
                 front_default: 'https://example.com/charmander.png',
             }
         }
     ];
 
-    render(<SelectOwnPokemon userPokemons={mockPokemons} />);
+    test('renders list of user pokemons', () => {
+        render(
+            <SelectOwnPokemon
+                userPokemons={mockPokemons}
+                onUserPokemonSelect={() => {}}
+            />
+        );
 
-    const pokemonList = screen.getByRole('list');
-    expect(pokemonList).toBeInTheDocument();
+        expect(screen.getByRole('list')).toBeInTheDocument();
+        expect(screen.getByText('Bulbasaur')).toBeInTheDocument();
+        expect(screen.getByText('Charmander')).toBeInTheDocument();
+    });
 
-    const pokemonItem = screen.getByText('Bulbasaur');
-    expect(pokemonItem).toBeInTheDocument();
+    test('calls onUserPokemonSelect when pokemon is clicked', () => {
+        const mockOnUserPokemonSelect = jest.fn();
+        render(
+            <SelectOwnPokemon
+                userPokemons={mockPokemons}
+                onUserPokemonSelect={mockOnUserPokemonSelect}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Bulbasaur'));
+        expect(mockOnUserPokemonSelect).toHaveBeenCalledWith(mockPokemons[0]);
+    });
 });

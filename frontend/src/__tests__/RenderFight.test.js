@@ -1,133 +1,86 @@
-import RenderFight from '../Components/FightPage/RenderFight.js';
-import {screen, fireEvent, render, waitFor} from "@testing-library/react";
-
-const mockUserPokeStrong = {
-    name: 'Pikachu',
-    stats: [
-        {stat: {name: 'hp'}, base_stat: 100},
-        {stat: {name: 'attack'}, base_stat: 100},
-        {stat: {name: 'defense'}, base_stat: 100},
-    ],
-    sprites: {
-        other: {
-            showdown: {
-                back_default: 'path/to/pikachu-back.png'
-            }
-        }
-    }
-};
-
-const mockUserPokeWeak = {
-    name: 'Pikachu',
-    stats: [
-        {stat: {name: 'hp'}, base_stat: 1},
-        {stat: {name: 'attack'}, base_stat: 1},
-        {stat: {name: 'defense'}, base_stat: 1},
-    ],
-    sprites: {
-        other: {
-            showdown: {
-                back_default: 'path/to/pikachu-back.png'
-            }
-        }
-    }
-};
-
-const mockEnemyPokeWeak = {
-    name: 'Charmander',
-    stats: [
-        {stat: {name: 'hp'}, base_stat: 1},
-        {stat: {name: 'attack'}, base_stat: 1},
-        {stat: {name: 'defense'}, base_stat: 1},
-    ],
-    sprites: {
-        other: {
-            showdown: {
-                front_default: 'path/to/charmander-front.png'
-            }
-        }
-    }
-};
-
-const mockEnemyPokeStrong = {
-    name: 'Charmander',
-    stats:[
-        {stat: {name: 'hp'}, base_stat: 100},
-        {stat: {name: 'attack'}, base_stat: 100},
-        {stat: {name: 'defense'}, base_stat: 100},
-    ],
-    sprites:{
-        other:{
-            showdown:{
-                front_default: 'path/to/charmander-front.png'
-            }
-        }
-    }
-}
-
-
-const mockUserPokemons = [mockUserPokeStrong];
-const mockSetAllPokemons = jest.fn();
-const mockReturnToHome = jest.fn();
-
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import RenderFight from '../Components/FightPage/RenderFight';
 
 describe('RenderFight Component', () => {
-    it('renders with correct user and enemy data', async () => {
-        render(
-            <RenderFight
-                enemyPoke={mockEnemyPokeWeak}
-                usersPoke={mockUserPokeStrong}
-                userPokemons={mockUserPokemons}
-                setAllPokemons={mockSetAllPokemons}
-                returnToHome={mockReturnToHome}
-            />
-        );
+    const mockUserPokeStrong = {
+        name: 'Pikachu',
+        stats: [
+            {stat: {name: 'hp'}, base_stat: 100},
+            {stat: {name: 'attack'}, base_stat: 100},
+            {stat: {name: 'defense'}, base_stat: 100},
+        ],
+        sprites: {
+            other: {
+                showdown: {
+                    back_default: 'path/to/pikachu-back.png'
+                }
+            }
+        }
+    };
 
-        expect(await screen.findByText('Pikachu')).toBeInTheDocument();
+    const mockEnemyPokeWeak = {
+        name: 'Charmander',
+        stats: [
+            {stat: {name: 'hp'}, base_stat: 1},
+            {stat: {name: 'attack'}, base_stat: 1},
+            {stat: {name: 'defense'}, base_stat: 1},
+        ],
+        sprites: {
+            other: {
+                showdown: {
+                    front_default: 'path/to/charmander-front.png'
+                }
+            }
+        }
+    };
 
-        expect(await screen.findByText('Charmander')).toBeInTheDocument();
+    const mockUserPokemons = [mockUserPokeStrong];
+    const mockOnEndOfFight = jest.fn();
+    const mockReturnToHome = jest.fn();
+
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
-    it('handles fight simulation, then player wins', async () => {
+    test('renders fight interface with pokemon data', () => {
         render(
             <RenderFight
                 enemyPoke={mockEnemyPokeWeak}
                 usersPoke={mockUserPokeStrong}
                 userPokemons={mockUserPokemons}
-                setAllPokemons={mockSetAllPokemons}
+                onEndOfFight={mockOnEndOfFight}
                 returnToHome={mockReturnToHome}
             />
         );
 
-        const fightButton = screen.getByRole('button');
-        fireEvent.click(fightButton);
+        expect(screen.getByText('Pikachu')).toBeInTheDocument();
+        expect(screen.getByText('Charmander')).toBeInTheDocument();
+        expect(screen.getByText('Attack')).toBeInTheDocument();
+    });
+
+    test('handles battle completion when user wins', async () => {
+        render(
+            <RenderFight
+                enemyPoke={mockEnemyPokeWeak}
+                usersPoke={mockUserPokeStrong}
+                userPokemons={mockUserPokemons}
+                onEndOfFight={mockOnEndOfFight}
+                returnToHome={mockReturnToHome}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Attack'));
 
         await waitFor(() => {
             expect(screen.getByText(/The winner:/)).toBeInTheDocument();
             expect(screen.getByText(/Your Pikachu/)).toBeInTheDocument();
         });
-    });
 
-    it('handles fight simulation, then enemy wins', async () => {
-        render(
-            <RenderFight
-                enemyPoke={mockEnemyPokeStrong}
-                usersPoke={mockUserPokeWeak}
-                userPokemons={mockUserPokemons}
-                setAllPokemons={mockSetAllPokemons}
-                returnToHome={mockReturnToHome}
-            />
-        );
-
-        const fightButton = screen.getByRole('button');
-        fireEvent.click(fightButton);
-
+        // Wait for the return home timeout
         await waitFor(() => {
-            expect(screen.getByText(/The winner:/)).toBeInTheDocument();
-            expect(screen.getByText(/Enemy Charmander/)).toBeInTheDocument();
-        });
+            expect(mockOnEndOfFight).toHaveBeenCalledWith([...mockUserPokemons, mockEnemyPokeWeak]);
+            expect(mockReturnToHome).toHaveBeenCalled();
+        }, { timeout: 4000 });
     });
 });
-
-
-

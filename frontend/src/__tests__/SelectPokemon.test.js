@@ -1,22 +1,48 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SelectPokemon from '../Components/SelectPokemon';
+import fetchData from '../Utils';
 
-jest.mock('../Components/EnemyPokes');
+jest.mock('../Utils');
 
-test('renders random enemy button and list of enemy pokemons', () => {
+describe('SelectPokemon', () => {
     const mockArea = {
         pokemon_encounters: [
-            { pokemon: { name: 'Bulbasaur' } },
-            { pokemon: { name: 'Charmander' } },
+            { pokemon: { name: 'Bulbasaur', url: 'bulbasaur-url' } },
+            { pokemon: { name: 'Charmander', url: 'charmander-url' } },
         ],
     };
 
-    render(<SelectPokemon area={mockArea} />);
+    const mockPokemonData = {
+        name: 'Bulbasaur',
+        sprites: { front_default: 'bulbasaur.png' }
+    };
 
-    const randomEnemyButton = screen.getByText('Random Enemy');
-    expect(randomEnemyButton).toBeInTheDocument();
+    beforeEach(() => {
+        fetchData.mockResolvedValue(mockPokemonData);
+    });
 
-    const enemyList = screen.getByRole('list');
-    expect(enemyList).toBeInTheDocument();
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('renders random enemy button and fetches pokemon data', async () => {
+        const mockOnEnemySelect = jest.fn();
+        render(<SelectPokemon area={mockArea} onEnemySelect={mockOnEnemySelect} />);
+
+        expect(screen.getByText('Random Enemy')).toBeInTheDocument();
+        await waitFor(() => {
+            expect(fetchData).toHaveBeenCalledTimes(mockArea.pokemon_encounters.length);
+        });
+    });
+
+    test('selects random enemy when random button is clicked', async () => {
+        const mockOnEnemySelect = jest.fn();
+        render(<SelectPokemon area={mockArea} onEnemySelect={mockOnEnemySelect} />);
+
+        await waitFor(() => {
+            fireEvent.click(screen.getByText('Random Enemy'));
+            expect(mockOnEnemySelect).toHaveBeenCalled();
+        });
+    });
 });
